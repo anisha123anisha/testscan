@@ -30,7 +30,7 @@ jobs:
         id: bandit_scan
         run: |
           bandit vuln.py --format json --output bandit-report.json || true
-          CRITICAL_COUNT=$(grep -c '"issue_severity": "High"' bandit-report.json || true)
+          CRITICAL_COUNT=$(grep -c '"issue_severity": "HIGH"' bandit-report.json || true)
           echo "critical_count=$CRITICAL_COUNT" >> $GITHUB_ENV
 
       - name: Upload Bandit Report
