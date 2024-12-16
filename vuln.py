@@ -9,4 +9,4 @@ def weak_hash(password):
 
 if __name__ == "__main__":
     insecure_command("ls -l")
-    print("Password hash:", weak_hash("password123"))
+    print("Password hash:", weak_hash("password123")) #test
