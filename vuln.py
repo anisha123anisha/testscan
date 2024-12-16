@@ -1,9 +1,7 @@
-import subprocess
+import os
 
-def execute_command():
-    # Critical vulnerability: User input directly passed to shell command
-    user_input = input("Enter a command to execute: ")
-    subprocess.call(f"echo {user_input}", shell=True)  # Dangerous use of shell=True
+# Vulnerable code: Command injection via user input
+user_input = input("Enter a file name to display its contents: ")
 
-if __name__ == "__main__":
-    execute_command()
+# Dangerous system call that directly uses user input
+os.system(f"cat {user_input}")
