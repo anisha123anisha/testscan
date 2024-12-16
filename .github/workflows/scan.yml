@@ -55,15 +55,15 @@ jobs:
         if: env.critical_count > 0
         run: exit 1
 
-# Step 8: Comment Success if No Critical Vulnerabilities Found
-- name: Successful Scan Comment
-  if: ${{ env.critical_count != '' && fromJSON(env.critical_count) == 0 }}
-  uses: peter-evans/create-or-update-comment@v4
-  with:
-    issue-number: ${{ github.event.pull_request.number }}
-    body: |
-      **Security Scan Successful**
-      No Critical vulnerabilities were found in `vuln.py`. PR is approved.
+      # Step 8: Comment Success if No Critical Vulnerabilities Found
+      - name: Successful Scan Comment
+        if: ${{ env.critical_count != '' && fromJSON(env.critical_count) == 0 }}
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+        issue-number: ${{ github.event.pull_request.number }}
+        body: |
+          **Security Scan Successful**
+          No Critical vulnerabilities were found in `vuln.py`. PR is approved.
 
 
       # Step 9: Auto-Merge Pull Request
