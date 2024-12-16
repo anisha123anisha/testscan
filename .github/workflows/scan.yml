@@ -1,0 +1,71 @@
+name: Bandit Security Scan
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  security-scan:
+    name: Run Bandit Security Scan
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout code
+      - name: Checkout code
+        uses: actions/checkout
+
+      # Step 2: Set up Python
+      - name: Set up Python
+        uses: actions/setup-python
+        with:
+          python-version: "3.x"
+
+      # Step 3: Install Bandit
+      - name: Install Bandit
+        run: pip install bandit
+
+      # Step 4: Run Bandit and save output
+      - name: Run Bandit scan
+        id: bandit_scan
+        run: |
+          bandit -r . --format json --output bandit-report.json || true
+          CRITICAL_COUNT=$(cat bandit-report.json | grep -c '"issue_severity": "CRITICAL"')
+          echo "critical_count=$CRITICAL_COUNT" >> $GITHUB_ENV
+
+      # Step 5: Upload Bandit report as an artifact
+      - name: Upload Bandit Report
+        uses: actions/upload-artifact
+        with:
+          name: bandit-security-report
+          path: bandit-report.json
+
+      # Step 6: Block PR if Critical Vulnerabilities Found
+      - name: Block Pull Request
+        if: env.critical_count > 0
+        uses: mshick/add-pr-comment
+        with:
+          message: |
+            **Security Scan Failed**
+            Critical vulnerabilities were found. PR is blocked.  
+            Please resolve the issues and try again.
+
+      - name: Fail Workflow if Critical Issues Exist
+        if: env.critical_count > 0
+        run: exit 0
+
+      # Step 7: Comment and Auto-Merge if No Critical Issues
+      - name: Successful Scan Comment
+        if: env.critical_count == 0
+        uses: mshick/add-pr-comment
+        with:
+          message: |
+            **Security Scan Successful**
+            No critical vulnerabilities found. PR will be auto-merged.
+
+      - name: Auto-Merge Pull Request
+        if: env.critical_count == 0
+        uses: peter-evans/enable-pull-request-automerge
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          merge-method: squash
