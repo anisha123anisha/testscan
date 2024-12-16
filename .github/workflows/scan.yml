@@ -58,13 +58,13 @@ jobs:
 
       # Step 7: Successful Scan Comment
       - name: Successful Scan Comment
-        if: env.critical_count == 0
+  if: env.critical_count == 0
   uses: peter-evans/create-or-update-comment@v4
   with:
     issue-number: ${{ github.event.pull_request.number }}
     body: |
-      **Security Scan Failed**
-      Critical vulnerabilities were found in `vuln.py`. PR will be auto-merged.
+      **Security Scan Success**
+      No Critical vulnerabilities were found in `vuln.py`. PR is approved.
 
 
       # Step 8: Auto-Merge Pull Request
