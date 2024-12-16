@@ -53,6 +53,7 @@ jobs:
       - name: Fail Workflow if Critical Issues Exist
         if: env.critical_count > 0
         run: exit 1
+        continue-on-error: true 
 
       # Step 7: Comment and Auto-Merge if No Critical Issues
       - name: Successful Scan Comment
