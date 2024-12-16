@@ -5,6 +5,10 @@ on:
     branches:
       - main
 
+permissions:                        # Add permissions block
+  pull-requests: write              # Allow writing comments on pull requests
+  contents: read
+
 jobs:
   security-scan:
     name: Run Bandit Security Scan
