@@ -42,13 +42,13 @@ jobs:
 
       # Step 6: Block PR if Critical Vulnerabilities Found
       - name: Block Pull Request
-        if: env.critical_count > 0
-        uses: mshick/add-pr-comment@v2
-        with:
-          message: |
-            **Security Scan Failed**
-            Critical vulnerabilities were found in `vuln.py`. PR is blocked.  
-            Please resolve the issues and try again.
+  if: env.critical_count > 0
+  uses: peter-evans/create-or-update-comment@v4
+  with:
+    issue-number: ${{ github.event.pull_request.number }}
+    body: |
+      **Security Scan Failed**
+      Critical vulnerabilities were found in `vuln.py`. PR is blocked.
 
       - name: Fail Workflow if Critical Issues Exist
         if: env.critical_count > 0
@@ -59,10 +59,12 @@ jobs:
       - name: Successful Scan Comment
         if: env.critical_count == 0
         uses: peter-evans/create-or-update-comment@v4
-        with:
-          message: |
-            **Security Scan Successful**
-            No critical vulnerabilities found in `vuln.py`. PR will be auto-merged.
+        with: 
+           issue-number: ${{ github.event.pull_request.number }}
+    body: |
+      **Security Scan Failed**
+      Critical vulnerabilities were found in `vuln.py`. PR will be auto-merged.
+
 
       # Step 8: Auto-Merge Pull Request
       - name: Auto-Merge Pull Request
