@@ -60,15 +60,14 @@ jobs:
         if: ${{ env.critical_count != '' && fromJSON(env.critical_count) == 0 }}
         uses: peter-evans/create-or-update-comment@v4
         with:
-        issue-number: ${{ github.event.pull_request.number }}
-        body: |
-          **Security Scan Successful**
-          No Critical vulnerabilities were found in `vuln.py`. PR is approved.
-
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            **Security Scan Successful**
+            No Critical vulnerabilities were found in `vuln.py`. PR is approved.
 
       # Step 9: Auto-Merge Pull Request
       - name: Auto-Merge Pull Request
-        if: env.critical_count == 0
+        if: ${{ env.critical_count != '' && fromJSON(env.critical_count) == 0 }}
         uses: peter-evans/enable-pull-request-automerge@v2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
