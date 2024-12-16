@@ -69,10 +69,12 @@ jobs:
             **Security Scan Successful**
             No Critical vulnerabilities were found in `vuln.py`. PR is approved.
 
-      # Step 9: Auto-Merge Pull Request
+        # Step 9: Auto-Merge Pull Request
       - name: Auto-Merge Pull Request
         if: ${{ env.critical_count != '' && fromJSON(env.critical_count) == 0 }}
         uses: peter-evans/enable-pull-request-automerge@v2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          pull-request-number: ${{ github.event.pull_request.number }}
           merge-method: squash
+
