@@ -15,17 +15,21 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Step 1: Checkout code
       - name: Checkout code
         uses: actions/checkout@v3
 
+      # Step 2: Set up Python
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: "3.x"
 
+      # Step 3: Install Bandit
       - name: Install Bandit
         run: pip install bandit
 
+      # Step 4: Run Bandit scan and determine critical vulnerabilities
       - name: Run Bandit scan
         id: bandit_scan
         run: |
@@ -34,31 +38,43 @@ jobs:
           echo "Critical Count Found: $CRITICAL_COUNT"
           echo "critical_count=$CRITICAL_COUNT" >> $GITHUB_ENV
 
+      # Step 5: Upload Bandit report as an artifact
       - name: Upload Bandit Report
         uses: actions/upload-artifact@v4
         with:
           name: bandit-security-report
           path: bandit-report.json
 
+      # Step 6: Debugging Critical Count
       - name: Debug Critical Count
         run: echo "Critical Count is ${{ env.critical_count }}"
 
-      # Step 1: Block PR if Critical Vulnerabilities Found
+      # Step 7: Block PR if critical vulnerabilities are found
       - name: Block Pull Request
         if: ${{ env.critical_count != '' && env.critical_count != '0' }}
         uses: peter-evans/create-or-update-comment@v4
         with:
           issue-number: ${{ github.event.pull_request.number }}
           body: |
-            **Security Scan Failed**
-            Critical vulnerabilities were found in `vuln.py`. PR is blocked.
+            🚨 **Security Scan Failed**
+            Critical vulnerabilities were found in `lowvuln.py`. PR is blocked.
 
-      # Step 2: Fail Workflow if Critical Issues Exist
+      # Step 8: Fail Workflow if critical vulnerabilities are present
       - name: Fail Workflow if Critical Issues Exist
         if: ${{ env.critical_count != '' && env.critical_count != '0' }}
         run: exit 1
 
-      # Step 3: Auto-Merge Pull Request if No Critical Vulnerabilities Found
+      # Step 9: Comment Success if no critical vulnerabilities are found
+      - name: Successful Scan Comment
+        if: ${{ env.critical_count == '0' }}
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            ✅**Security Scan Successful**
+            No critical vulnerabilities were found in `lowvuln.py`. PR is approved and will be auto-merged.
+
+      # Step 10: Auto-Merge Pull Request if no critical vulnerabilities exist
       - name: Auto-Merge Pull Request
         if: ${{ env.critical_count == '0' }}
         uses: peter-evans/enable-pull-request-automerge@v2
@@ -66,13 +82,3 @@ jobs:
           token: ${{ secrets.PAT_TOKEN }}
           pull-request-number: ${{ github.event.pull_request.number }}
           merge-method: squash
-
-      # Step 4: Comment Success if No Critical Vulnerabilities Found
-      - name: Successful Scan Comment
-        if: ${{ env.critical_count == '0' }}
-        uses: peter-evans/create-or-update-comment@v4
-        with:
-          issue-number: ${{ github.event.pull_request.number }}
-          body: |
-            **Security Scan Successful**
-            No critical vulnerabilities were found in `vuln.py`. PR is approved.
