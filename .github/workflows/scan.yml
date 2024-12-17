@@ -36,7 +36,7 @@ jobs:
           bandit lowvuln.py --format json --output bandit-report.json || true
           # Clean up grep output to ensure a single numeric value
           CRITICAL_COUNT=$(grep -ic '"issue_severity": "HIGH"' bandit-report.json || echo 0)
-          CRITICAL_COUNT=$(echo "$CRITICAL_COUNT" | tr -d '[:space:]')  # Remove any whitespace
+          CRITICAL_COUNT=$(echo "$CRITICAL_COUNT" | tr -d '[:space:]' | sed 's/^0*//')  # Remove leading zeros and whitespace
           echo "Critical Count Found: $CRITICAL_COUNT"
           echo "critical_count=${CRITICAL_COUNT:-0}" >> $GITHUB_ENV
 
@@ -53,7 +53,7 @@ jobs:
 
       # Step 7: Block PR if critical vulnerabilities are found
       - name: Block Pull Request
-        if: ${{ env.critical_count != '' && env.critical_count != '0' }}
+        if: ${{ env.critical_count != '0' }}
         uses: peter-evans/create-or-update-comment@v4
         with:
           issue-number: ${{ github.event.pull_request.number }}
@@ -63,7 +63,7 @@ jobs:
 
       # Step 8: Fail Workflow if critical vulnerabilities are present
       - name: Fail Workflow if Critical Issues Exist
-        if: ${{ env.critical_count != '' && env.critical_count != '0' }}
+        if: ${{ env.critical_count != '0' }}
         run: exit 1
 
       # Step 9: Comment Success if no critical vulnerabilities are found
