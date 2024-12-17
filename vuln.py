@@ -1,30 +1,33 @@
 import os
-import subprocess
 import hashlib
 
-# Example 1: Command Injection
-def run_system_command(user_input):
-    # This is vulnerable to command injection
-    os.system(f"echo {user_input}")
+# Vulnerability 1: Command Injection
+def list_directory(user_input):
+    # Directly passing user input to os.system (command injection risk)
+    os.system(f"ls {user_input}")
 
-# Example 2: Insecure Hashing (MD5)
-def generate_md5_hash(password):
-    # MD5 is not secure for hashing passwords
-    return hashlib.md5(password.encode()).hexdigest()
+# Vulnerability 2: Hardcoded Credentials
+def connect_to_service():
+    # Hardcoded sensitive information
+    username = "admin"
+    password = "12345"  # Hardcoded weak password
+    print(f"Connecting to service with username: {username} and password: {password}")
 
-# Example 3: Hardcoded Sensitive Information
-def hardcoded_credentials():
-    # Hardcoded password in the code (a common vulnerability)
-    password = "mysecretpassword"
-    return password
+# Vulnerability 3: Insecure Hashing Algorithm
+def hash_password(password):
+    # Using insecure hashing algorithm (MD5)
+    hashed = hashlib.md5(password.encode()).hexdigest()
+    print(f"MD5 hash of the password is: {hashed}")
 
-# Example 4: Insecure subprocess call (command injection risk)
-def insecure_subprocess():
-    user_input = "malicious_input; rm -rf /"  # Example of user input with a malicious command
-    subprocess.run(f"ls {user_input}", shell=True)
+# Main function to demonstrate vulnerabilities
+if __name__ == "__main__":
+    # Example input to trigger vulnerabilities
+    user_input = input("Enter directory name: ")  # User input for command injection
+    list_directory(user_input)
 
-# Example 5: Use of eval() (code injection risk)
-def eval_example(user_input):
-    # Evaluating user input is dangerous (code injection)
-    result = eval(user_input)
-    return result
+    # Hardcoded credentials being used
+    connect_to_service()
+
+    # Weak hash usage
+    password = input("Enter a password to hash: ")
+    hash_password(password)
