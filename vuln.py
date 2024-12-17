@@ -1,37 +1,30 @@
 import os
 import subprocess
-import json
+import hashlib
 
-# Hardcoded secret - flagged by Bandit
-SECRET_KEY = "supersecretpassword"
+# Example 1: Command Injection
+def run_system_command(user_input):
+    # This is vulnerable to command injection
+    os.system(f"echo {user_input}")
 
-# Insecure eval usage - flagged by Bandit
-def insecure_eval(user_input):
-    result = eval(user_input)  # This is dangerous and should never be used with untrusted input
-    print(f"Result: {result}")
+# Example 2: Insecure Hashing (MD5)
+def generate_md5_hash(password):
+    # MD5 is not secure for hashing passwords
+    return hashlib.md5(password.encode()).hexdigest()
 
-# Insecure subprocess call - flagged by CodeQL and Bandit
-def insecure_subprocess(command):
-    # If the command contains user input, it could lead to arbitrary code execution
-    subprocess.run(command, shell=True)
+# Example 3: Hardcoded Sensitive Information
+def hardcoded_credentials():
+    # Hardcoded password in the code (a common vulnerability)
+    password = "mysecretpassword"
+    return password
 
-# Improper input validation - flagged by CodeQL
-def process_data(data):
-    try:
-        # Dangerous: no validation of input, allowing for code injection or other attacks
-        result = json.loads(data)  # This will succeed even with malicious input
-        print("Processed data:", result)
-    except json.JSONDecodeError:
-        print("Invalid data format")
+# Example 4: Insecure subprocess call (command injection risk)
+def insecure_subprocess():
+    user_input = "malicious_input; rm -rf /"  # Example of user input with a malicious command
+    subprocess.run(f"ls {user_input}", shell=True)
 
-# Example of using insecure eval and subprocess in an actual program
-if __name__ == "__main__":
-    user_input = input("Enter a Python expression to evaluate: ")
-    insecure_eval(user_input)
-
-    user_command = input("Enter a shell command to run: ")
-    insecure_subprocess(user_command)
-
-    # Simulating JSON input with potential attack
-    json_data = '{"user": "admin", "password": "password123"}'
-    process_data(json_data)
+# Example 5: Use of eval() (code injection risk)
+def eval_example(user_input):
+    # Evaluating user input is dangerous (code injection)
+    result = eval(user_input)
+    return result
