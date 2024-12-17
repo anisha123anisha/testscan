@@ -34,9 +34,11 @@ jobs:
         id: bandit_scan
         run: |
           bandit lowvuln.py --format json --output bandit-report.json || true
+          # Sanitize the count: Ensure it's clean and numeric
           CRITICAL_COUNT=$(grep -ic '"issue_severity": "HIGH"' bandit-report.json || echo 0)
+          CRITICAL_COUNT=$(echo $CRITICAL_COUNT | xargs)  # Trim leading/trailing whitespace
           echo "Critical Count Found: $CRITICAL_COUNT"
-          echo "critical_count=$CRITICAL_COUNT" >> $GITHUB_ENV
+          echo "critical_count=${CRITICAL_COUNT:-0}" >> $GITHUB_ENV
 
       # Step 5: Upload Bandit report as an artifact
       - name: Upload Bandit Report
@@ -56,7 +58,7 @@ jobs:
         with:
           issue-number: ${{ github.event.pull_request.number }}
           body: |
-            🚨 **Security Scan Failed**
+            **Security Scan Failed**
             Critical vulnerabilities were found in `lowvuln.py`. PR is blocked.
 
       # Step 8: Fail Workflow if critical vulnerabilities are present
@@ -71,7 +73,7 @@ jobs:
         with:
           issue-number: ${{ github.event.pull_request.number }}
           body: |
-            ✅**Security Scan Successful**
+            **Security Scan Successful**
             No critical vulnerabilities were found in `lowvuln.py`. PR is approved and will be auto-merged.
 
       # Step 10: Auto-Merge Pull Request if no critical vulnerabilities exist
