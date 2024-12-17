@@ -79,7 +79,7 @@ jobs:
       # Step 10: Auto-Merge Pull Request if no critical vulnerabilities exist
       - name: Auto-Merge Pull Request
         if: ${{ env.critical_count == '0' }}
-        uses: peter-evans/enable-pull-request-automerge@v2
+        uses: peter-evans/enable-pull-request-automerge@v3
         with:
           token: ${{ secrets.PAT_TOKEN }}
           pull-request-number: ${{ github.event.pull_request.number }}
