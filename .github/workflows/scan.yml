@@ -34,9 +34,9 @@ jobs:
         id: bandit_scan
         run: |
           bandit lowvuln.py --format json --output bandit-report.json || true
-          # Sanitize the count: Ensure it's clean and numeric
+          # Clean up grep output to ensure a single numeric value
           CRITICAL_COUNT=$(grep -ic '"issue_severity": "HIGH"' bandit-report.json || echo 0)
-          CRITICAL_COUNT=$(echo $CRITICAL_COUNT | xargs)  # Trim leading/trailing whitespace
+          CRITICAL_COUNT=$(echo "$CRITICAL_COUNT" | tr -d '[:space:]')  # Remove any whitespace
           echo "Critical Count Found: $CRITICAL_COUNT"
           echo "critical_count=${CRITICAL_COUNT:-0}" >> $GITHUB_ENV
 
