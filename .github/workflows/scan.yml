@@ -30,7 +30,8 @@ jobs:
         id: bandit_scan
         run: |
           bandit vuln.py --format json --output bandit-report.json || true
-          CRITICAL_COUNT=$(grep -c '"issue_severity": "High"' bandit-report.json || true)
+          CRITICAL_COUNT=$(grep -ic '"issue_severity": "HIGH"' bandit-report.json || echo 0)
+          echo "Critical Count Found: $CRITICAL_COUNT"
           echo "critical_count=$CRITICAL_COUNT" >> $GITHUB_ENV
 
       - name: Upload Bandit Report
@@ -44,7 +45,7 @@ jobs:
 
       # Step 1: Block PR if Critical Vulnerabilities Found
       - name: Block Pull Request
-        if: ${{ env.critical_count > 0 }}
+        if: ${{ env.critical_count != '' && env.critical_count != '0' }}
         uses: peter-evans/create-or-update-comment@v4
         with:
           issue-number: ${{ github.event.pull_request.number }}
@@ -54,21 +55,21 @@ jobs:
 
       # Step 2: Fail Workflow if Critical Issues Exist
       - name: Fail Workflow if Critical Issues Exist
-        if: ${{ env.critical_count > 0 }}
+        if: ${{ env.critical_count != '' && env.critical_count != '0' }}
         run: exit 1
 
       # Step 3: Auto-Merge Pull Request if No Critical Vulnerabilities Found
       - name: Auto-Merge Pull Request
-        if: ${{ env.critical_count == 0 }}
+        if: ${{ env.critical_count == '0' }}
         uses: peter-evans/enable-pull-request-automerge@v2
         with:
-          token: ${{ secrets.PAT_TOKEN }}  # Use PAT if GITHUB_TOKEN fails
+          token: ${{ secrets.PAT_TOKEN }}
           pull-request-number: ${{ github.event.pull_request.number }}
           merge-method: squash
 
       # Step 4: Comment Success if No Critical Vulnerabilities Found
       - name: Successful Scan Comment
-        if: ${{ env.critical_count == 0 }}
+        if: ${{ env.critical_count == '0' }}
         uses: peter-evans/create-or-update-comment@v4
         with:
           issue-number: ${{ github.event.pull_request.number }}
