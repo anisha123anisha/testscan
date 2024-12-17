@@ -54,7 +54,7 @@ jobs:
       # Step 7: Block PR if critical vulnerabilities are found
       - name: Block Pull Request
         if: ${{ env.critical_count != '0' }}
-        uses: peter-evans/create-or-update-comment@v4
+        uses: peter-evans/create-or-update-comment@v3
         with:
           issue-number: ${{ github.event.pull_request.number }}
           body: |
@@ -69,7 +69,7 @@ jobs:
       # Step 9: Comment Success if no critical vulnerabilities are found
       - name: Successful Scan Comment
         if: ${{ env.critical_count == '0' }}
-        uses: peter-evans/create-or-update-comment@v4
+        uses: peter-evans/create-or-update-comment@v3
         with:
           issue-number: ${{ github.event.pull_request.number }}
           body: |
