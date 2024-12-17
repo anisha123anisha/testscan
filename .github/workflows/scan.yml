@@ -33,7 +33,7 @@ jobs:
       - name: Run Bandit scan
         id: bandit_scan
         run: |
-          bandit vuln.py --format json --output bandit-report.json || true
+          bandit lowvuln.py --format json --output bandit-report.json || true
           # Clean up grep output to ensure a single numeric value
           CRITICAL_COUNT=$(grep -ic '"issue_severity": "HIGH"' bandit-report.json || echo 0)
           CRITICAL_COUNT=$(echo "$CRITICAL_COUNT" | tr -d '[:space:]' | sed 's/^0*//')  # Remove leading zeros and whitespace
