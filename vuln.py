@@ -6,7 +6,7 @@ def list_directory(user_input):
     # Directly passing user input to os.system (command injection risk)
     os.system(f"ls {user_input}")
 
-# Vulnerability 2: Hardcoded Credentials
+# Vulnerability 2: Hardcoded Credentials 
 def connect_to_service():
     # Hardcoded sensitive information
     username = "admin"
